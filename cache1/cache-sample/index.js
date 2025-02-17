@@ -1,42 +1,48 @@
 import express from 'express';
 import fetch from 'node-fetch';
-import NodeCache from 'node-cache';
+import { createClient } from 'redis';
 
-// stdTTL is the default time-to-live for each cache entry
-const cache = new NodeCache({ stdTTL: 300 });
+const client = await createClient()
+  .on('error', err => console.log('Redis Client Error', err))
+  .connect();
 
-// retrieve data
+// извлечение данных
 async function getCountries() {
- const response = await fetch(`https://restcountries.com/v3.1/all?fields=name,flags`);
+  
+  const response = await fetch(`https://restcountries.com/v3.1/all?fields=name,flags`);
 
- if (!response.ok) {
-   throw new Error(response.statusText);
- }
+  if (!response.ok) {
+    throw new Error(response.statusText);
+  }
 
- return await response.json();
+  return await response.json();
 }
 
 const app = express(); 
 app.get('/countries', async (req, res) => {
- try {
-   // try to get the countries from cache
-   let countries = cache.get('allCountries');
+  try {
+    // попробуем извлечь данные о странах из кеша
+    let countries = null;
+    try {
+      // попробуем извлечь данные о странах из кеша
+      countries = await client.get('countries');
+    } catch (err) {
+      console.log(err);
+    }
+    // если кеш пуст, извлекаем данные из хранилища
+    if (countries == null) {
+      countries = await getCountries();
+      await client.set('countries', JSON.stringify(countries));
+    }
 
-   // if data from cache is empty then get data from store
-   if (countries == null) {
-     countries = await getCountries();
-     // time-to-live is set to 300 seconds. 
-     cache.set('allCountries', countries, 300);
-   }
-
-   res.status(200).send(countries);
- } catch (err) {
-   console.log(err);
-   res.sendStatus(500);
- }
+    res.status(200).send(JSON.stringify(countries));
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
 });
 
 const port = 3000;
 app.listen(port, () => {
-console.log(`Server listening on http://localhost:${port}`);
+  console.log(`Server listening on http://localhost:${port}`);
 });
