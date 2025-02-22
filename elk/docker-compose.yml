@@ -21,6 +21,8 @@
      image: logstash:8.14.3
      volumes:
        - ./conf/logstash/conf.yml:/usr/share/logstash/config/logstash.yml:ro
+       - ./conf/logstash/pipelines.yml:/usr/share/logstash/config/pipelines.yml:ro
+       - ./conf/logstash/pipelines:/usr/share/logstash/config/pipelines:ro
      environment:
        LS_JAVA_OPTS: "-Xmx512m -Xms512m"
      ports:
@@ -52,6 +54,17 @@
        - elknet
      ports:
        - 80:80
+
+   beats:
+     image: elastic/filebeat:8.14.3
+     volumes:
+      - ./conf/filebeat/conf.yml:/usr/share/filebeat/filebeat.yml:ro
+      - ./var/log/nginx:/var/log/nginx
+     networks:
+      - elknet
+     depends_on:
+      - nginx
+      - elasticsearch 
  
  networks:
    elknet:

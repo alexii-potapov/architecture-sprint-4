@@ -1,5 +1,6 @@
- cluster.name: "sample-elk"
- network.host: 0.0.0.0
- xpack.security.enabled: false # Отключить аутентификацию
- xpack.license.self_generated.type: basic # Тип лицензии "basic"
- 
+cluster.name: "sample-elk"
+network.host: 0.0.0.0
+xpack.security.enabled: false # Отключить аутентификацию
+xpack.license.self_generated.type: basic # Тип лицензии "basic"
+action.destructive_requires_name: false
+xpack.security.enrollment.enabled: true
