@@ -56,9 +56,10 @@
        - 80:80
 
    beats:
-     image: elastic/filebeat:8.14.3
+     image: elastic/filebeat:8.14.3     
+     entrypoint: "filebeat -e -strict.perms=false"
      volumes:
-      - ./conf/filebeat/conf.yml:/usr/share/filebeat/filebeat.yml:ro
+      - ./conf/filebeat/conf.yml:/usr/share/filebeat/filebeat.yml
       - ./var/log/nginx:/var/log/nginx
      networks:
       - elknet

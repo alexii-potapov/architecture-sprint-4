@@ -12,7 +12,7 @@ services:
       - 5778:5778 # serve configs, sampling strategies
       - 4317:4317 # OpenTelemetry Protocol (OTLP) over gRPC
       - 4318:4318 # OpenTelemetry Protocol (OTLP) over HTTP
-      - 16686:16686 # UI port
+      - 26686:16686 # UI port
       - 14269:14269 # collector admin port: health check at / and metrics at /metrics
       - 9411:9411 # Zipkin compatible endpoint
     environment:
